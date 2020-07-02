@@ -33,13 +33,18 @@ DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
 $ docker-compose up -d
 ```
 
-### 5. To create a super user run
+### 5. API Interface / Documentation
+    
+   Open http://localhost:8000/admin
+
+
+### 6. To create a super user run
     
 ```
 $ docker-compose exec web python manage.py createsuperuser
 ```
     
-### 6. Get access token of user
+### 7. Get access token of user
 
    1. Open http://localhost:8000/admin
 
@@ -48,7 +53,7 @@ $ docker-compose exec web python manage.py createsuperuser
    3. Find and copy token from http://localhost:8000/admin/authtoken/token/
 
 
-### 7. Run test
+### 8. Run test
   
    1. Create virtual environment for test
     
@@ -80,7 +85,7 @@ $ python -m unittest test_todo.py
 $ deactivate
 ```
 
-### 8. Shut down environment
+### 9. Shut down environment
     
 ```
 $ docker-compose down

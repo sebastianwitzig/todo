@@ -15,14 +15,5 @@ class ToDoAdmin(admin.ModelAdmin):
         'user__email',
     )
 
-    # objects should not be writable!
-    readonly_fields = (
-        'user',
-        'title',
-        'description',
-        'state',
-        'due_date',
-    )
-
 
 admin.site.register(ToDo, ToDoAdmin)

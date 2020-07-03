@@ -105,16 +105,18 @@ class TestToDoAPI(unittest.TestCase):
             {
                 'field': 'title',
                 'search_field': 'title',
-                'value': 'Carwash',
+                'value': 'Wash car',
                 'search': 'car',
                 'other_values': ['Clean House', 'Go shopping'],
+                'output_asc': ['Clean House', 'Go shopping', 'Wash car'],
             },
             {
                 'field': 'description',
                 'search_field': 'description',
-                'value': 'Wash all our cars',
+                'value': 'Wash the car',
                 'search': 'wash',
                 'other_values': ['Clean all rooms', 'Buy food'],
+                'output_asc': ['Buy food', 'Clean all rooms', 'Wash the car'],
             },
             {
                 'field': 'due_date',
@@ -125,6 +127,11 @@ class TestToDoAPI(unittest.TestCase):
                     date(2017, 2, 14).isoformat(),
                     date(2017, 2, 15).isoformat(),
                 ],
+                'output_asc': [
+                    date(2017, 2, 13).isoformat(),
+                    date(2017, 2, 14).isoformat(),
+                    date(2017, 2, 15).isoformat(),
+                ],
             },
             {
                 'field': 'state',
@@ -132,6 +139,11 @@ class TestToDoAPI(unittest.TestCase):
                 'value': int(Status.TODO),
                 'search': int(Status.TODO),
                 'other_values': [
+                    int(Status.DONE),
+                    int(Status.IN_PROGRESS),
+                ],
+                'output_asc': [
+                    int(Status.TODO),
                     int(Status.IN_PROGRESS),
                     int(Status.DONE),
                 ],
@@ -171,6 +183,15 @@ class TestToDoAPI(unittest.TestCase):
         )
         self.assertEqual(len(response.json()), 1)
         self.assertEqual(todo_id, response.json()[0]['id'])
+
+        # test ordering
+        response = requests.get(
+            f'{self.ENDPOINT}?ordering={case["field"]}',
+            headers=self.headers,
+        )
+        self.assertEqual(len(response.json()), 3)
+        for value, expected in zip(response.json(), case['output_asc']):
+            self.assertEqual(value[case['field']], expected)
 
         # clean up
         response = requests.get(self.ENDPOINT, headers=self.headers)

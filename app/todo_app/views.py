@@ -1,4 +1,5 @@
 from rest_framework import serializers, viewsets
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 
 from django_filters import rest_framework as filters
@@ -39,8 +40,9 @@ class ToDoViewSet(OwnerMixin, viewsets.ModelViewSet):
     queryset = ToDo.objects.all()
     serializer_class = ToDoSerializer
     permission_classes = (IsAuthenticated, )
-    filter_backends = (filters.DjangoFilterBackend, )
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
     filterset_class = TodoFilter
+    ordering_fields = '__all__'
 
     def perform_create(self, serializer: serializers.Serializer):
         serializer.save(user=self.request.user)

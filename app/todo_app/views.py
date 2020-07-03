@@ -22,13 +22,13 @@ class TodoFilter(filters.FilterSet):
     state = filters.ChoiceFilter(
             field_name='state', choices=Status.get_tuple())
 
-    def filter_search(self, queryset, name, value):
+    def filter_search(self, queryset: 'QuerySet', name, value) -> 'QuerySet':
         search_filter = {f'{name}__icontains': value}
         return queryset.filter(**search_filter)
 
 
 class OwnerMixin(object):
-    def get_queryset(self):
+    def get_queryset(self) -> 'QuerySet':
         user = self.request.user
         queryset = super(OwnerMixin, self).get_queryset()
         return queryset.filter(

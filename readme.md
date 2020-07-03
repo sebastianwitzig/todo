@@ -48,9 +48,11 @@ $ docker-compose run web python manage.py createsuperuser
 
    1. Open http://localhost:8000/admin
 
-   2. Login with data of just created user
+   2. Login with data of just created user.
 
    3. Find and copy token from http://localhost:8000/admin/authtoken/token/
+
+   4. Add accesstoken to environment variable(TODO_ACCESS_TOKEN) or paste it later while running the test directly.
 
 
 ### 8. Run test
@@ -92,6 +94,10 @@ $ docker-compose down
 ```
 
 ## API Documentation
+
+### Authentication
+Authentication in header of request.
+Example: "Authentication: Bearer <TOKEN>"
 
 ### APIs
 

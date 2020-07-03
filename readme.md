@@ -41,7 +41,7 @@ $ docker-compose up -d
 ### 6. To create a super user run
     
 ```
-$ docker-compose exec web python manage.py createsuperuser
+$ docker-compose run web python manage.py createsuperuser
 ```
     
 ### 7. Get access token of user
@@ -61,7 +61,7 @@ $ docker-compose exec web python manage.py createsuperuser
 $ python -m venv test_env
 ```
     
-   2. Start virtual environment
+   2. Activate virtual environment
     
 ```
 $ source test_env/bin/activate

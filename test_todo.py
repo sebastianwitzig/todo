@@ -1,4 +1,5 @@
 import os, random, requests, sys, unittest
+from datetime import date
 from typing import Dict, Optional
 
 from faker import Faker
@@ -7,16 +8,27 @@ from app.todo_app.enumerations import Status
 
 faker = Faker()
 
+print('Attention: All todos of the test user will be deleted!')
+access_token = os.environ.get('TODO_ACCESS_TOKEN') \
+    or input('Please type in your access token to test:')
 
 class TestToDoAPI(unittest.TestCase):
 
     ENDPOINT = 'http://localhost:8000/todos/'
 
     def setUp(self):
-        access_token = os.environ.get('TODO_ACCESS_TOKEN') \
-            or input('Please type in your access token to test:')
         self.headers = {'Authorization': f'Token {access_token}'}
         self._create_dummy_data()
+
+        # clean up test users todos
+        response = requests.get(self.ENDPOINT, headers=self.headers)
+
+        # delete todos
+        for todo in response.json():
+            response = requests.delete(
+                self.ENDPOINT + f'{todo["id"]}/',
+                headers=self.headers,
+            )
 
     def _create_dummy_data(self):
         """Creates a list of dicts with dummy TODO data in self.todos."""
@@ -87,3 +99,85 @@ class TestToDoAPI(unittest.TestCase):
         # check deletion
         response = requests.get(self.ENDPOINT, headers=self.headers)
         self.assertEqual(len(response.json()), 0)
+
+    def test_filters(self):
+        test_cases = [
+            {
+                'field': 'title',
+                'search_field': 'title',
+                'value': 'Carwash',
+                'search': 'car',
+                'other_values': ['Clean House', 'Go shopping'],
+            },
+            {
+                'field': 'description',
+                'search_field': 'description',
+                'value': 'Wash all our cars',
+                'search': 'wash',
+                'other_values': ['Clean all rooms', 'Buy food'],
+            },
+            {
+                'field': 'due_date',
+                'search_field': 'due_date',
+                'value': date(2017, 2, 13),
+                'search': date(2017, 2, 13).isoformat(),
+                'other_values': [
+                    date(2017, 2, 14).isoformat(),
+                    date(2017, 2, 15).isoformat(),
+                ],
+            },
+            {
+                'field': 'state',
+                'search_field': 'state',
+                'value': int(Status.TODO),
+                'search': int(Status.TODO),
+                'other_values': [
+                    int(Status.IN_PROGRESS),
+                    int(Status.DONE),
+                ],
+            },
+        ]
+        for test_case in test_cases:
+            self._test_filter(test_case)
+
+    def _test_filter(self, case: Dict):
+        """Tests filters according to given case.
+
+        Args:
+            case:  test case with structure:
+                   {
+                       'field': 'title',
+                       'value': 'Carwash',
+                       'search': 'car',
+                       'other_values': ['Clean House', 'Go shopping'],
+                   }
+        """
+
+        # create Todos
+        todo = self.todos[0]
+        todo[case['field']] = case['value']
+        response = requests.post(self.ENDPOINT, todo, headers=self.headers)
+        todo_id = response.json()['id']
+
+        for index, value in enumerate(case['other_values']):
+            todo = self.todos[index + 1]
+            todo[case['field']] = value
+            response = requests.post(self.ENDPOINT, todo, headers=self.headers)
+
+        # test filter
+        response = requests.get(
+            f'{self.ENDPOINT}?{case["search_field"]}={case["search"]}',
+            headers=self.headers,
+        )
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(todo_id, response.json()[0]['id'])
+
+        # clean up
+        response = requests.get(self.ENDPOINT, headers=self.headers)
+
+        # delete todos
+        for todo in response.json():
+            response = requests.delete(
+                self.ENDPOINT + f'{todo["id"]}/',
+                headers=self.headers,
+            )

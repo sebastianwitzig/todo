@@ -86,7 +86,33 @@ $ deactivate
 ```
 
 ### 9. Shut down environment
-    
+
 ```
 $ docker-compose down
 ```
+
+## API Documentation
+
+### APIs
+
+#### GET
+    /todo/
+
+##### Parameters
+
+| Variable    | Type                 | Example         | Required | Description                                                      |
+| --------    | ----                 | -------         | -------- | -----------                                                      |
+| title       | text                 | Wash            | no       | Search for title                                                 |
+| description | text                 | Wash the car    | no       | Search for description                                           |
+| due_date    | date                 | 2020-02-14      | no       | Search for todos at this date                                    |
+| state       | int                  | 0               | no       | Filter todos with given status(TODO: 0, IN PROGRESS: 1, DONE: 2) |
+| ordering    | comma separated text | due_date,-state | no       | Order by given fields (add '-' to order desc).                   |
+
+##### POST
+    /todo/
+
+##### PATCH
+    /todo/<id>/
+
+##### DELETE
+    /todo/<id>/
